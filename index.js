@@ -14,14 +14,18 @@ const fs = require('fs');
 (async () => {
   const rarepress = new Rarepress();
   await rarepress.init({ network: "mainnet" })
-  const filenames = await fs.promises.readdir("images")
+  let filenames = await fs.promises.readdir("images")
+  // remove all files that start with "." (such as .DS_Store and .gitkeep)
+  filenames = filenames.filter((filename) => {
+    return !filename.startsWith(".")
+  })
   for(let filename of filenames) {
     const file = await fs.promises.readFile("images/" + filename)
     const cid = await rarepress.fs.add(file)
     let token = await rarepress.token.create({
       metadata: {
-        name: file,
-        description: file,
+        name: filename,
+        description: filename,
         image: `/ipfs/${cid}`
       }
     })
